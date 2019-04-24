@@ -1,0 +1,18 @@
+{
+  "name": "nrepl-test",
+  "version": "0.0.0",
+  "description": "",
+  "main": "out/talk-to-me.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "PEZ",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {
+    "@types/node": "^7.0.66",
+    "net": "1.0.2"
+  }
+}
