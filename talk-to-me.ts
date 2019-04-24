@@ -19,6 +19,7 @@ async function run() {
         });
         cljSession = nClient.session;
         console.log("Connected session: clj");
+        cljSession.close();
         nClient.close();
     }
     catch (e) {
