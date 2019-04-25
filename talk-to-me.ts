@@ -5,7 +5,8 @@ import { NReplClient, NReplSession } from "./nrepl";
 
 const ADD_FORM = "(+ 1 1)",
     PRINT_FORM = '(println "hello")',
-    ERR_FORM = 'FUBAR';
+    ERR_FORM = 'FUBAR',
+    START_FIG_FORM = "(do (require 'figwheel.main) (figwheel.main/start :dev))";
 
 async function evalForm(form: string, session: NReplSession) {
     console.log(`Evaluating ${form} in CLJ REPL …`);
@@ -21,7 +22,7 @@ async function evalForm(form: string, session: NReplSession) {
     if (!hasError) {
         console.log(`Result: ${value}`);
     } else {
-        await session.stacktrace();
+        //await session.stacktrace();
     }
 }
 
@@ -46,6 +47,9 @@ async function evalForm(form: string, session: NReplSession) {
 
         cljsSession = await cljSession.clone();
         console.log("Cloned CLJ session, for CLJS");
+        console.log("Starting Figwheel …");
+        await evalForm(START_FIG_FORM, cljsSession);
+
         await cljSession.close();
         await nClient.close();
     } else {
