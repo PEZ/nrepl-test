@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { NReplClient, NReplSession } from "./nrepl";
+import { resolve } from 'url';
 
 const ADD_FORM = "(+ 1 1)",
     PRINT_FORM = '(println "hello")',
@@ -26,23 +27,37 @@ async function evalForm(form: string, session: NReplSession, slug: string) {
     }
 }
 
-async function startFigwheel(session: NReplSession) {
-    const START_FIG_FORM = "(do (require 'figwheel.main) (figwheel.main/start :dev))";
+async function startFigwheel(session: NReplSession): Promise<boolean> {
+    const START_FIG_FORM = "(do (require 'figwheel.main.api) (figwheel.main.api/start :dev))";
+    const ATTACH_FIG_REPL = '(figwheel.main.api/cljs-repl "dev")';
 
     console.log(`Evaluating ${START_FIG_FORM} in CLJ REPL clone …`);
-    const r = await session.eval(START_FIG_FORM, {
-        stderr: m => console.error("ERROR starting Figwheel: ", m)
-    });
-    let hasError = false;
-    const value = await r.value.catch(async reason => {
-        console.error("Because reasons: " + reason);
-        hasError = true;
-    });
-    if (!hasError) {
-        console.log(`Result: ${value}`);
+    let err, startV, attachV;
+    startV = await session.eval(START_FIG_FORM, { stderr: m => err = m }).value
+        .then(() => {
+            console.info("Figwheel started");
+            console.info("CLJS REPL attached");
+            return true;
+        })
+        .catch(reason => {
+            return false;
+         });
+    if (!startV && err != undefined && err.match(/already running/)) {
+        console.info("Figwheel running, attaching to CLJS REPL …");
+        console.info(`Evaluating ${ATTACH_FIG_REPL} in CLJ REPL clone …`);
+        attachV = await session.eval(ATTACH_FIG_REPL).value
+            .then(v => {
+                console.info("CLJS REPL attached");
+                return true;
+            })
+            .catch(reason => {
+                console.error("ERROR attaching to CLJS REPL: ", reason);
+                return false;
+            })
     } else {
-        //await session.stacktrace();
+        console.error("ERROR starting Figwheel: ", err)
     }
+    return startV || attachV;
 }
 
 (async () => {
@@ -67,15 +82,13 @@ async function startFigwheel(session: NReplSession) {
         cljsSession = await cljSession.clone();
         console.log("Cloned CLJ session, for CLJS");
         console.log("Starting Figwheel …");
-        await evalForm(START_FIG_FORM, cljsSession);
+        if (await startFigwheel(cljsSession)) {
+            await evalForm(ADD_FORM, cljSession, "CLJS");
+            await evalForm(PRINT_FORM, cljSession, "CLJS");
+            await evalForm(ERR_FORM, cljSession, "CLJS");
+            await evalForm(ADD_FORM, cljSession, "CLJS");
+        }
 
-        await evalForm(ADD_FORM, cljSession, "CLJS");
-        await evalForm(PRINT_FORM, cljSession, "CLJS");
-        await evalForm(ERR_FORM, cljSession, "CLJS");
-        await evalForm(ADD_FORM, cljSession, "CLJS");
-
-
-        await cljSession.close();
         await nClient.close();
     } else {
         console.error("No .nrepl-port file found. Can't do my work.")
