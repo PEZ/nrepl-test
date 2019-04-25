@@ -178,15 +178,18 @@ export class NReplSession {
     }
 
     stacktrace() {
-        return new Promise<any>((resolve, reject) => {
+        let promise = new Promise<any>((resolve, reject) => {
             let id = this.client.nextId;
             this.messageHandlers[id] = (msg) => {
                 console.error("Stacktrace message: ", JSON.stringify(msg.message));
                 resolve(msg);
                 return true;
             }
-            this.client.write({ op: "stacktrace", id, session: this.sessionId })
-        })
+            const msg = { op: "stacktrace", id, session: this.sessionId };
+            console.info("Sending message: ", JSON.stringify(msg));
+            this.client.write(msg)
+        });
+        return promise;
     }
 
     eval(code: string, opts: { line?: number, column?: number, eval?: string, file?: string, stderr?: (x: string) => void, stdout?: (x: string) => void, pprint?: boolean } = {}) {
@@ -209,7 +212,7 @@ export class NReplSession {
                     value = msg.value
                 if (msg["pprint-out"])
                     evaluation.pprintOut = msg["pprint-out"];
-                if (msg.status) {
+                if (msg.status && msg.status == "done") {
                     if (ex)
                         reject(ex);
                     else if (value)
@@ -221,7 +224,9 @@ export class NReplSession {
                     return true;
                 }
             }
-            this.client.write({ op: "eval", session: this.sessionId, code, id, ...opts })
+            const msg = { op: "eval", session: this.sessionId, code, id, ...opts };
+            console.info("Sending message: ", JSON.stringify(msg));
+            this.client.write(msg);
         }))
 
         return evaluation;

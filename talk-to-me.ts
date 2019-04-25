@@ -9,13 +9,20 @@ const ADD_FORM = "(+ 1 1)",
 
 async function evalForm(form: string, session: NReplSession) {
     console.log(`Evaluating ${form} in CLJ REPL …`);
-    let r = await session.eval(form, { stdout: m => console.log("out: ", m), stderr: m => console.error("err: ", m) });
-    let value = await r.value.then(v => {
-        console.log(`Result: ${v}`);
-    }).catch(async reason => {
-        console.error("Because reasons: " + reason);
-        await session.stacktrace();
+    const r = await session.eval(form, {
+        stdout: m => console.log("stdout: ", m),
+        stderr: m => console.error("stderr: ", m)
     });
+    let hasError = false;
+    const value = await r.value.catch(async reason => {
+        console.error("Because reasons: " + reason);
+        hasError = true;
+    });
+    if (!hasError) {
+        console.log(`Result: ${value}`);
+    } else {
+        await session.stacktrace();
+    }
 }
 
 (async () => {
