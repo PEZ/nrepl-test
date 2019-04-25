@@ -2,31 +2,39 @@
 
 A sandbox for playing with nrepl with Calva's nrepl client stuff.
 
+The project consists of two parts:
+1. A super minimal Clojure/ClojureScript project using deps.edn and Figwheel Main.
+2. A TypeScript node script that runs a sequence of nrepl evaluations against the nrepl server in the Clojure project.
+
 ## Usage
 
-### Start the REPL
-In one terminal tab.
+```sh
+$ npm i
+```
 
-Start with `nrepl 0.5.3` and friends:
+### Start the REPL
+
+In a terminal somewhere (inside VSCode for instance)...
+
+To start with `nrepl 0.5.3` and friends:
 ```sh
 $ clojure -Sdeps "{:deps {nrepl {:mvn/version \"0.5.3\"} cider/cider-nrepl {:mvn/version \"0.20.0\"} cider/piggieback {:mvn/version \"0.3.10\"} figwheel-sidecar {:mvn/version \"0.5.18\"}}}" -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware cider.piggieback/wrap-cljs-repl]"
 ```
 
-Start with `nrepl 0.6.0` and friends:
+To start with `nrepl 0.6.0` and friends:
 ```sh
 $ clojure -Sdeps "{:deps {nrepl {:mvn/version \"0.6.0\"} cider/cider-nrepl {:mvn/version \"0.21.1\"} cider/piggieback {:mvn/version \"0.4.0\"} figwheel-sidecar {:mvn/version \"0.5.18\"}}}" -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware cider.piggieback/wrap-cljs-repl]"
 ```
 
-
-Open the browser at localhost:3449
-
 ### Connect and run some tests
-In another terminal tab.
 
-Compile the test script:
+If you are using VS Code:
+1. Start the **Watcher** Build Task.
+1. Run the script in the debugger: `F5`.
+
+Not using VSCode? In another terminal tab, compile the test script:
 
 ```sh
-$ npm i
 $ npx tsc -p .
 ```
 
