@@ -3,30 +3,47 @@ import * as path from 'path';
 
 import { NReplClient, NReplSession } from "./nrepl";
 
-const p = path.resolve(".", ".nrepl-port");
+const ADD_FORM = "(+ 1 1)",
+    PRINT_FORM = '(println "hello")',
+    ERR_FORM = 'FUBAR';
 
+async function evalForm(form: string, session: NReplSession) {
+    console.log(`Evaluating ${form} in CLJ REPL …`);
+    let r = await session.eval(form, { stdout: m => console.log("out: ", m), stderr: m => console.error("err: ", m) });
+    let value = await r.value.then(v => {
+        console.log(`Result: ${v}`);
+    }).catch(async reason => {
+        console.error("Because reasons: " + reason);
+        await session.stacktrace();
+    });
+}
 
-async function run() {
+(async () => {
     let nClient: NReplClient,
         cljSession: NReplSession,
         cljsSession: NReplSession;
-    try {
-        const port = fs.readFileSync(path.resolve(".", ".nrepl-port"), 'utf8');
-        console.log(port);
+    const portFile = path.resolve(".", ".nrepl-port");
+    console.log("Hello nrepl");
+    if (fs.existsSync(portFile)) {
+        const port = fs.readFileSync(portFile, 'utf8');
         nClient = await NReplClient.create({ host: "localhost", port: +port })
         nClient.addOnCloseHandler(c => {
             console.log("Connection closed");
         });
         cljSession = nClient.session;
-        console.log("Connected session: clj");
-        cljSession.close();
-        nClient.close();
-    }
-    catch (e) {
-        console.log("No luck: ", e);
-    }
-}
+        console.log("Connected CLJ REPL");
+        await evalForm(ADD_FORM, cljSession);
+        await evalForm(PRINT_FORM, cljSession);
+        await evalForm(ERR_FORM, cljSession);
+        await evalForm(ADD_FORM, cljSession);
 
-run();
+        cljsSession = await cljSession.clone();
+        console.log("Cloned CLJ session, for CLJS");
+        await cljSession.close();
+        await nClient.close();
+    } else {
+        console.error("No .nrepl-port file found. Can't do my work.")
+    }
+})();
 
 

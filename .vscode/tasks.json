@@ -1,15 +1,30 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558 
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
             "type": "npm",
             "script": "watch",
+            "label": "Watcher",
             "problemMatcher": [
                 "$tsc-watch"
             ],
-            "isBackground": true
+            "isBackground": true,
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "shell",
+            "command": "node out/talk-to-me.js",
+            "label": "Runner",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
         }
     ]
 }

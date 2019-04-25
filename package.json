@@ -4,7 +4,8 @@
   "description": "",
   "main": "out/talk-to-me.js",
   "scripts": {
-      "watch": "npx tsc -watch -p ./"
+    "watch": "npx tsc -watch -p ./",
+    "talk-to-me": "node out/talk-to-me.js"
   },
   "author": "PEZ",
   "license": "ISC",
