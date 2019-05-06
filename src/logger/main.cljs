@@ -1,4 +1,4 @@
-(ns cljs-server.main)
+(ns logger.main)
 
 (enable-console-print!)
 

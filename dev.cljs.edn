@@ -1,1 +1,1 @@
-{:main cljs-server.main}
+{:main logger.main}

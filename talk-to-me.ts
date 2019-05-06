@@ -5,6 +5,7 @@ import { NReplClient, NReplSession } from "./nrepl";
 import { resolve } from 'url';
 
 const ADD_FORM = "(+ 1 1)",
+    IN_NS_FORM = "(in-ns 'logger.main)",
     PRINT_FORM = '(println "hello")',
     ERR_FORM = 'FUBAR';
 
@@ -41,7 +42,7 @@ async function startFigwheel(session: NReplSession): Promise<boolean> {
         })
         .catch(reason => {
             return false;
-         });
+        });
     if (!startV && err != undefined && err.match(/already running/)) {
         console.info("Figwheel running, attaching to CLJS REPL …");
         console.info(`Evaluating ${ATTACH_FIG_REPL} in CLJ REPL clone …`);
@@ -84,6 +85,8 @@ async function startFigwheel(session: NReplSession): Promise<boolean> {
         console.log("Starting Figwheel …");
         if (await startFigwheel(cljsSession)) {
             await evalForm(ADD_FORM, cljSession, "CLJS");
+            await evalForm(IN_NS_FORM, cljSession, "CLJS");
+            //await evalForm(ENABLE_CONSOLE_PRINT_FORM, cljSession, "CLJS");
             await evalForm(PRINT_FORM, cljSession, "CLJS");
             await evalForm(ERR_FORM, cljSession, "CLJS");
             await evalForm(ADD_FORM, cljSession, "CLJS");
