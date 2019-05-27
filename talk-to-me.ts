@@ -84,9 +84,8 @@ async function startFigwheel(session: NReplSession): Promise<boolean> {
         console.log("Cloned CLJ session, for CLJS");
         console.log("Starting Figwheel …");
         if (await startFigwheel(cljsSession)) {
+            //await evalForm(IN_NS_FORM, cljSession, "CLJS");
             await evalForm(ADD_FORM, cljSession, "CLJS");
-            await evalForm(IN_NS_FORM, cljSession, "CLJS");
-            //await evalForm(ENABLE_CONSOLE_PRINT_FORM, cljSession, "CLJS");
             await evalForm(PRINT_FORM, cljSession, "CLJS");
             await evalForm(ERR_FORM, cljSession, "CLJS");
             await evalForm(ADD_FORM, cljSession, "CLJS");

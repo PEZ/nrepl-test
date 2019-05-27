@@ -14,31 +14,31 @@ $ npm i
 
 ### Start the REPL
 
+1. Run your fork of the Calva `dev` branch and then open this project, and its `src/logger/main.cljs` in a debug session.
+1. Jack in (`ctrl+alt+c ctrl+alt+j`).
+1. Wait for the REPL server to start.
+1. And then for Figwheel to start.
+
+#### To repro the current issues:
+1. Inline evaluate the `println` form in `main.js`. -> You should see that you get the `nil` result back, but no stdout is printed to `Calva says`.
+1. Evaluate the in the CLJS REPL window. -> You should see a stacktrace printed and then that repl window is not usable any more. You'll need to close and reopen it to get it working again.
+
+
+### Running the test script
+
+1. Start the **Watcher** Build Task.
+1. Run the script in the debugger: `F5`.
+
+Check the output in the debug console.
+
+### To test this with `nrepl 0.5.3` and friends:
+
+Terminate the *Calva Jack-in* task.
+
 In a terminal somewhere (inside VSCode for instance)...
 
-To start with `nrepl 0.5.3` and friends:
 ```sh
 $ clojure -Sdeps "{:deps {nrepl {:mvn/version \"0.5.3\"} cider/cider-nrepl {:mvn/version \"0.20.0\"} cider/piggieback {:mvn/version \"0.3.10\"} figwheel-sidecar {:mvn/version \"0.5.18\"}}}" -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware cider.piggieback/wrap-cljs-repl]"
 ```
 
-To start with `nrepl 0.6.0` and friends:
-```sh
-$ clojure -Sdeps "{:deps {nrepl {:mvn/version \"0.6.0\"} cider/cider-nrepl {:mvn/version \"0.21.1\"} cider/piggieback {:mvn/version \"0.4.0\"} figwheel-sidecar {:mvn/version \"0.5.18\"}}}" -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware cider.piggieback/wrap-cljs-repl]"
-```
-
-### Connect and run some tests
-
-If you are using VS Code:
-1. Start the **Watcher** Build Task.
-1. Run the script in the debugger: `F5`.
-
-Not using VSCode? In another terminal tab, compile the test script:
-
-```sh
-$ npx tsc -p .
-```
-
-Run the script:
-```sh
-$ node out/talk-to-me.js
-```
+Then Connect Calva (`ctrl+alt+c ctrl+alt+c`).
